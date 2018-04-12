@@ -13,11 +13,19 @@ namespace ClassParser
             { "int", "number" },
             { "decimal", "number" },
             { "float", "number" },
+            { "bool", "boolean" }
         };
 
-        public string MapType(string type)
+        public static string MapType(string type)
         {
-            return null;
+            if (ValuesDictionary.ContainsKey(type))
+            {
+                return ValuesDictionary[type];
+            } else
+            {
+                return type;
+            }
+
         }
     }
 }

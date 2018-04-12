@@ -31,21 +31,26 @@ namespace ClassParser
                 if (memberSyntax is PropertyDeclarationSyntax)
                 {
                     PropertyDeclarationSyntax propertySyntax = memberSyntax as PropertyDeclarationSyntax;
-                    var memeber = new MemberDeclaration();
-                    memeber.Name = propertySyntax.Identifier.Text;
+                    if (!HasMemberJsonIgnoreAttribute(propertySyntax))
+                    {
+                        var memeber = new MemberDeclaration();
+                        memeber.Name = propertySyntax.Identifier.Text;
 
-                    if (propertySyntax.Type is GenericNameSyntax)
-                    {
-                        memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
-                    } else if (propertySyntax.Type is NullableTypeSyntax)
-                    {
-                        memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
-                    } else
-                    {
-                        memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
+                        if (propertySyntax.Type is GenericNameSyntax)
+                        {
+                            memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
+                        }
+                        else if (propertySyntax.Type is NullableTypeSyntax)
+                        {
+                            memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
+                        }
+                        else
+                        {
+                            memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
+                        }
+
+                        propertyList.Add(memeber);
                     }
-
-                    propertyList.Add(memeber);
                 }
             }
             foreach(var memeber in propertyList)
@@ -66,19 +71,12 @@ namespace ClassParser
 
         private static string BuildPropertyTypeFromIdentifierNameSyntax(IdentifierNameSyntax identifierNameSyntax)
         {
-            return identifierNameSyntax.Identifier.Text;
+            return TypeMapper.MapType(identifierNameSyntax.Identifier.Text);
         }
 
         private static string BuildPropertyTypeFromPredefinedTypeSyntax(PredefinedTypeSyntax predefinedNameSyntax)
         {
-            if(predefinedNameSyntax != null)
-            {
-                return predefinedNameSyntax.Keyword.Text;
-            } else
-            {
-                return null;
-            }
-
+            return TypeMapper.MapType(predefinedNameSyntax.Keyword.Text);
         }
 
         private static TypeDeclaration BuildPropertyTypeFromNullableTypeSyntax(NullableTypeSyntax nullableTypeSyntax)
@@ -108,6 +106,28 @@ namespace ClassParser
                 return typeDeclaration;
             }
             return null;
+        }
+
+        private static bool HasMemberJsonIgnoreAttribute(PropertyDeclarationSyntax propertySyntax)
+        {
+            SyntaxList<AttributeListSyntax> propertyAttributes = propertySyntax.AttributeLists;
+
+            if (propertyAttributes.Any()) { 
+                foreach(var attributesList in propertyAttributes)
+                {
+                    if (attributesList.Attributes.Any())
+                    {
+                        foreach (var attribute in attributesList.Attributes)
+                        {
+                            if(attribute.Name.ToString() == "JsonIgnore")
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 
