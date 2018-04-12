@@ -1,0 +1,28 @@
+{
+  "name": "service",
+  "version": "1.0.0",
+  "description": "simplify object synchronization",
+  "main": "service.js",
+  "scripts": {
+    "read": "node service.js r",
+    "sync": "node service.js s",
+    "diff": "node service.js d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "syncrify"
+  },
+  "dependencies": {
+    "commander": "^2.9.0",
+    "inquirer": "^3.0.6",
+    "mongoose": "^4.9.2"
+  },
+  "keywords": [
+    "sync"
+  ],
+  "author": "Kamil",
+  "license": "ISC",
+  "devDependencies": {
+    "columnify": "^1.5.4"
+  }
+}
