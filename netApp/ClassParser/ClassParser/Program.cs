@@ -11,53 +11,56 @@ namespace ClassParser
     {
         static void Main(string[] args)
         {
-            var code = new StreamReader("..\\..\\ToParse\\ActivityViewModel.cs").ReadToEnd();
-
-            SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
-
-            var root = (CompilationUnitSyntax)tree.GetRoot();
-
-            var members = root.Members;
-
-            var helloWorldDeclaration = (NamespaceDeclarationSyntax)members[0];
-
-            var classDeclaration = (ClassDeclarationSyntax)helloWorldDeclaration.Members[0];
-
-            SyntaxList<MemberDeclarationSyntax> classMembers = classDeclaration.Members;
-            var propertyList = new List<MemberDeclaration>();
-
-            foreach (var memberSyntax in classMembers)
+            if(args.Length > 0)
             {
-                if (memberSyntax is PropertyDeclarationSyntax)
+                var code = new StreamReader(args[0]).ReadToEnd();
+
+                SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
+
+                var root = (CompilationUnitSyntax)tree.GetRoot();
+
+                var members = root.Members;
+
+                var helloWorldDeclaration = (NamespaceDeclarationSyntax)members[0];
+
+                var classDeclaration = (ClassDeclarationSyntax)helloWorldDeclaration.Members[0];
+
+                SyntaxList<MemberDeclarationSyntax> classMembers = classDeclaration.Members;
+                var propertyList = new List<MemberDeclaration>();
+
+                foreach (var memberSyntax in classMembers)
                 {
-                    PropertyDeclarationSyntax propertySyntax = memberSyntax as PropertyDeclarationSyntax;
-                    if (!HasMemberJsonIgnoreAttribute(propertySyntax))
+                    if (memberSyntax is PropertyDeclarationSyntax)
                     {
-                        var memeber = new MemberDeclaration();
-                        memeber.Name = propertySyntax.Identifier.Text;
+                        PropertyDeclarationSyntax propertySyntax = memberSyntax as PropertyDeclarationSyntax;
+                        if (!HasMemberJsonIgnoreAttribute(propertySyntax))
+                        {
+                            var memeber = new MemberDeclaration();
+                            memeber.Name = propertySyntax.Identifier.Text;
 
-                        if (propertySyntax.Type is GenericNameSyntax)
-                        {
-                            memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
-                        }
-                        else if (propertySyntax.Type is NullableTypeSyntax)
-                        {
-                            memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
-                        }
-                        else
-                        {
-                            memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
-                        }
+                            if (propertySyntax.Type is GenericNameSyntax)
+                            {
+                                memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
+                            }
+                            else if (propertySyntax.Type is NullableTypeSyntax)
+                            {
+                                memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
+                            }
+                            else
+                            {
+                                memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
+                            }
 
-                        propertyList.Add(memeber);
+                            propertyList.Add(memeber);
+                        }
                     }
                 }
+                foreach (var memeber in propertyList)
+                {
+                    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
+                }
+                //Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(propertyList));
             }
-            foreach(var memeber in propertyList)
-            {
-                Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
-            }
-            //Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(propertyList));
             Console.ReadKey();
         }
 
