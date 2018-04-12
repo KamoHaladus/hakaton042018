@@ -1,4 +1,4 @@
-import { ModelDeclaration } from "./modelDeclaration";
+import { ModelDeclaration } from "./types";
 
 const { exec } = require('child_process');
 export class Commands {
@@ -18,9 +18,11 @@ export class Commands {
         return changes;
     };
 
-    private invoke = ():  => {
-        exec("cat package.json | wc -l", () => {
-
-        });
+    private invoke = (): Promise<void> => {
+        return new Promise<void>((resolve, _reject) => {
+            exec("cat package.json | wc -l", () => {
+                resolve();
+            });
+        })
     }
 }
