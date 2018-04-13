@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using ClassParser.Model;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -13,7 +14,9 @@ namespace ClassParser
         {
             if(args.Length > 0)
             {
-                var code = new StreamReader(args[0]).ReadToEnd();
+                var filePath = args[0];
+
+                var code = new StreamReader(filePath).ReadToEnd();
 
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
 
@@ -26,6 +29,7 @@ namespace ClassParser
                 var classDeclaration = (ClassDeclarationSyntax)helloWorldDeclaration.Members[0];
 
                 SyntaxList<MemberDeclarationSyntax> classMembers = classDeclaration.Members;
+
                 var propertyList = new List<MemberDeclaration>();
 
                 foreach (var memberSyntax in classMembers)
@@ -59,7 +63,8 @@ namespace ClassParser
                 //{
                 //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
                 //}
-                Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(propertyList));
+                var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
+                Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(modelDeclarration));
             }
             Console.ReadKey();
         }
@@ -131,31 +136,6 @@ namespace ClassParser
                 }
             }
             return false;
-        }
-    }
-
-    public class ModelDeclaration
-    {
-        public string Name { get; set; }
-        public List<MemberDeclaration> Members { get; set; }
-    }
-
-    public class MemberDeclaration
-    {
-        public string Name { get; set; }
-        public TypeDeclaration Type { get; set; }
-    }
-
-    public class TypeDeclaration
-    {
-        public string Name { get; set; }
-        public bool IsArray { get; set; }
-        public bool IsNullable { get; set; }
-
-        public TypeDeclaration(string name, bool isArray = false, bool isNullable = false)
-        {
-            Name = name;
-            IsArray = isArray;
         }
     }
 }
