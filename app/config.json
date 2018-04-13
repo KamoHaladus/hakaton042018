@@ -1,0 +1,7 @@
+{
+    "root":  "C:/GIT/antares/knightfrank.antares/src/",
+    "dotNetProcess": "C:/GIT/hakaton042018/netApp/ClassParser/ClassParser/bin/Debug/ClassParser.exe",
+    "dotNetModel": "KnightFrank.Antares.Domain/",
+    "dtoModel": "wwwroot/app/common/models/dto/",
+    "tsModel": "wwwroot/app/common/models/business/"
+}

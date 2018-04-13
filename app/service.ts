@@ -1,6 +1,7 @@
-const program = require('commander');
-const inquire = require('inquirer');
-const { sync, diff, read } = require('./command');
+import program from 'commander';
+import inquire from 'inquirer';
+import { Commands } from './commands';
+import { parseTypescriptModel } from './tsModelParser';
 
 const questions = [
     {
@@ -15,10 +16,9 @@ program
     .alias('r')
     .description('read file')
     .action(() => {
-        inquire.prompt(questions).then(answers => {
-            console.log(answers);
-            console.log(read);
-            read(answers.filename);
+        inquire.prompt(questions).then((answers) => {
+            let cmd = new Commands();
+            Promise.all([cmd.read(answers.filename)]);
         });
     });
 

@@ -66,7 +66,6 @@ namespace ClassParser
                 var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
                 Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(modelDeclarration));
             }
-            Console.ReadKey();
         }
 
         private static TypeDeclaration BuildPropertyTypeFromGenericNameSyntax(GenericNameSyntax genericNameSyntax)
@@ -120,7 +119,7 @@ namespace ClassParser
         {
             SyntaxList<AttributeListSyntax> propertyAttributes = propertySyntax.AttributeLists;
 
-            if (propertyAttributes.Any()) { 
+            if (propertyAttributes.Any()) {
                 foreach(var attributesList in propertyAttributes)
                 {
                     if (attributesList.Attributes.Any())
