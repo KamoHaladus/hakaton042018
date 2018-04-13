@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +42,7 @@ namespace ClassParser
                         if (!HasMemberJsonIgnoreAttribute(propertySyntax))
                         {
                             var memeber = new MemberDeclaration();
-                            memeber.Name = propertySyntax.Identifier.Text;
+                            memeber.Name = propertySyntax.Identifier.Text.ToCamelCase();
 
                             if (propertySyntax.Type is GenericNameSyntax)
                             {
@@ -64,8 +66,13 @@ namespace ClassParser
                 //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
                 //}
                 var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
-                Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(modelDeclarration));
+                Console.Write(JsonConvert.SerializeObject(modelDeclarration, 
+                    new JsonSerializerSettings {
+                        DefaultValueHandling = DefaultValueHandling.Ignore,
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    }));
             }
+            Console.ReadKey();
         }
 
         private static TypeDeclaration BuildPropertyTypeFromGenericNameSyntax(GenericNameSyntax genericNameSyntax)
@@ -89,7 +96,6 @@ namespace ClassParser
         private static TypeDeclaration BuildPropertyTypeFromNullableTypeSyntax(NullableTypeSyntax nullableTypeSyntax)
         {
             TypeDeclaration type = BuildPropertyTypeFromStandardSyntax(nullableTypeSyntax.ElementType);
-            type.Name = $"{type.Name}?";
             return type;
         }
 
@@ -98,7 +104,7 @@ namespace ClassParser
             if (typeSyntax is IdentifierNameSyntax)
             {
                 string typeName = BuildPropertyTypeFromIdentifierNameSyntax(typeSyntax as IdentifierNameSyntax);
-                return new TypeDeclaration(typeName);
+                return new TypeDeclaration(typeName.ToCamelCase());
             }
 
             if (typeSyntax is PredefinedTypeSyntax)

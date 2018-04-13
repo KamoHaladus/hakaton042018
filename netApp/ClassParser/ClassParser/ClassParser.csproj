@@ -124,6 +124,7 @@
     <Compile Include="Model\TypeDeclaration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringCamelCaseExtension.cs" />
     <Compile Include="TypeMapper.cs" />
   </ItemGroup>
   <ItemGroup>
