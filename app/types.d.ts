@@ -11,4 +11,18 @@ export type MemberDeclaration = {
 export type TypeDeclaration = {
     name: string,
     isArray?: boolean;
+    isNullable?: boolean;
 }
+
+export type Content = {
+    dotNetModelContent: ModelDeclaration,
+    dtoModelContent: ModelDeclaration
+};
+
+export type Config = {
+    root: string;
+    dotNetProcess: string
+    dotNetModel: string;
+    dtoModel: string;
+    tsModel: string;
+};

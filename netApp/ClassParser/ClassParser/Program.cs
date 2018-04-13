@@ -14,7 +14,7 @@ namespace ClassParser
     {
         static void Main(string[] args)
         {
-            if(args.Length > 0)
+            if (args.Length > 0)
             {
                 var filePath = args[0];
 
@@ -66,13 +66,13 @@ namespace ClassParser
                 //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
                 //}
                 var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
-                Console.Write(JsonConvert.SerializeObject(modelDeclarration, 
-                    new JsonSerializerSettings {
+                Console.Write(JsonConvert.SerializeObject(modelDeclarration,
+                    new JsonSerializerSettings
+                    {
                         DefaultValueHandling = DefaultValueHandling.Ignore,
                         ContractResolver = new CamelCasePropertyNamesContractResolver()
                     }));
             }
-            Console.ReadKey();
         }
 
         private static TypeDeclaration BuildPropertyTypeFromGenericNameSyntax(GenericNameSyntax genericNameSyntax)
@@ -125,14 +125,15 @@ namespace ClassParser
         {
             SyntaxList<AttributeListSyntax> propertyAttributes = propertySyntax.AttributeLists;
 
-            if (propertyAttributes.Any()) {
-                foreach(var attributesList in propertyAttributes)
+            if (propertyAttributes.Any())
+            {
+                foreach (var attributesList in propertyAttributes)
                 {
                     if (attributesList.Attributes.Any())
                     {
                         foreach (var attribute in attributesList.Attributes)
                         {
-                            if(attribute.Name.ToString() == "JsonIgnore")
+                            if (attribute.Name.ToString() == "JsonIgnore")
                             {
                                 return true;
                             }

@@ -13,12 +13,14 @@
     "url": "syncrify"
   },
   "dependencies": {
-    "commander": "^2.9.0",
-    "inquirer": "^3.0.6",
-    "mongoose": "^4.9.2",
+    "@types/lodash": "^4.14.106",
     "async-file": "^2.0.2",
-    "typescript": "^2.8.1",
-    "columnify": "^1.5.4"
+    "columnify": "^1.5.4",
+    "commander": "^2.9.0",
+    "globby": "^8.0.1",
+    "inquirer": "^3.0.6",
+    "pretty-console.log": "^2.0.0",
+    "typescript": "^2.8.1"
   },
   "keywords": [
     "sync"
@@ -26,6 +28,8 @@
   "author": "Kamil",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^9.6.4"
+    "@types/globby": "^6.1.0",
+    "@types/node": "^9.6.4",
+    "lodash": "^4.17.5"
   }
 }

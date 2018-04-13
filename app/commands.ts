@@ -1,19 +1,55 @@
-import { ModelDeclaration } from "./types";
+import { ModelDeclaration, Config, Content } from "./types";
+import columnify from 'columnify';
 import { exec } from 'child_process';
+import globby from 'globby';
 import { parseTypescriptModel } from "./tsModelParser";
+import _ from 'lodash';
 const config = require('./config.json') as Config;
 
 export class Commands {
-	// private dotNetProcess: string = "C:\\GIT\\hakaton042018\\netApp\\ClassParser\\ClassParser\\bin\\Debug\\ClassParser.exe C:\\GIT\\hakaton042018\\netApp\\ClassToParse\\ActivityViewModel.cs";
+
 	public sync = () => console.log('not implemented');
 
-	public diff = () => console.log('not implemented');
+	public diff = async (modelName: string) => {
+		let content: Content = await this.read(modelName);
+		let add = _.differenceWith(content.dotNetModelContent.members, content.dtoModelContent.members, (dotNet, dto) => dotNet.name.toLowerCase() == dto.name.toLowerCase());
+		let remove = _.differenceWith(content.dtoModelContent.members, content.dotNetModelContent.members, (dto, dotNet) => dto.name.toLowerCase() == dotNet.name.toLowerCase());
+		this.printDiff({
+			add: add.map((m) => (`${m.name}: ${m.type.name};`)),
+			space: ["      "],
+			remove: remove.map((m) => (`${m.name}: ${m.type.name};`))
+		});
+	}
 
-	public read = (filePath: string): ModelDeclaration[] => {
-		let cmd = `${config.dotNetProcess} ${config.root}${config.dotNetModel}${filePath}`;
-		this.invoke(cmd).then(() => { });
-		return null;
-	};
+	public async read(modelName: string): Promise<Content> {
+		let modelPaths = await Promise.all([this.setGlobe(modelName, config.dotNetModel), this.setGlobe(modelName, config.dtoModel)])
+			.then((result: [string[], string[]]) => {
+				return {
+					dotNetModel: `${config.root}${config.dotNetModel}${result[0][0]}`,
+					dtoModel: `${config.root}${config.dtoModel}${result[1][0]}`
+				};
+			});
+		return await Promise
+			.all([
+				this.invoke(`${config.dotNetProcess} ${modelPaths.dotNetModel}`),
+				parseTypescriptModel(modelPaths.dtoModel)
+			]).then((result: [ModelDeclaration, ModelDeclaration]) => {
+				return {
+					dotNetModelContent: result[0],
+					dtoModelContent: result[1]
+				};
+			});
+	}
+
+	private printDiff(data) {
+		let cols = columnify([data], { minWidth: 20, align: "left", config: { add: { maxWidth: 70 } } });
+		console.log(cols);
+	}
+
+	private setGlobe(fileName: string, modelPath: string): Promise<string[]> {
+		let cwd = `${config.root}${modelPath}`;
+		return globby(`**/${fileName}{.cs,.d.ts}`, <any>{ cwd, case: false });
+	}
 
 	private invoke = (cmd: string): Promise<ModelDeclaration> => {
 		return new Promise<ModelDeclaration>((resolve: any, reject: any) => {
@@ -29,10 +65,3 @@ export class Commands {
 	}
 }
 
-type Config = {
-	root: string;
-	dotNetProcess: string
-	dotNetModel: string;
-	dtoModel: string;
-	tsModel: string;
-};
