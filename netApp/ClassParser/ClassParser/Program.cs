@@ -55,11 +55,11 @@ namespace ClassParser
                         }
                     }
                 }
-                foreach (var memeber in propertyList)
-                {
-                    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
-                }
-                //Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(propertyList));
+                //foreach (var memeber in propertyList)
+                //{
+                //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
+                //}
+                Console.Write(Newtonsoft.Json.JsonConvert.SerializeObject(propertyList));
             }
             Console.ReadKey();
         }
