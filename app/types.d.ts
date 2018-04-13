@@ -12,3 +12,9 @@ export type TypeDeclaration = {
     name: string,
     isArray?: boolean;
 }
+
+export type UpdateModelCommand = {
+    modelName: string,
+    add: MemberDeclaration[],
+    remove: string[]
+}
