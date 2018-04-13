@@ -1,35 +1,35 @@
 {
-  "name": "service",
-  "version": "1.0.0",
-  "description": "simplify object synchronization",
-  "main": "service.js",
-  "scripts": {
-    "read": "node service.js r",
-    "sync": "node service.js s",
-    "diff": "node service.js d"
-  },
-  "repository": {
-    "type": "git",
-    "url": "syncrify"
-  },
-  "dependencies": {
-    "@types/lodash": "^4.14.106",
-    "async-file": "^2.0.2",
-    "columnify": "^1.5.4",
-    "commander": "^2.9.0",
-    "globby": "^8.0.1",
-    "inquirer": "^3.0.6",
-    "pretty-console.log": "^2.0.0",
-    "typescript": "^2.8.1"
-  },
-  "keywords": [
-    "sync"
-  ],
-  "author": "Kamil",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/globby": "^6.1.0",
-    "@types/node": "^9.6.4",
-    "lodash": "^4.17.5"
-  }
+    "name": "service",
+    "version": "1.0.0",
+    "description": "simplify object synchronization",
+    "main": "service.js",
+    "scripts": {
+        "read": "node service.js r",
+        "sync": "node service.js s",
+        "diff": "node service.js d"
+    },
+    "repository": {
+        "type": "git",
+        "url": "syncrify"
+    },
+    "dependencies": {
+        "async-file": "^2.0.2",
+        "change-case": "^3.0.2",
+        "columnify": "^1.5.4",
+        "commander": "^2.9.0",
+        "globby": "^8.0.1",
+        "inquirer": "^3.0.6",
+        "lodash": "^4.17.5",
+        "typescript": "^2.8.1"
+    },
+    "keywords": [
+        "sync"
+    ],
+    "author": "Kamil",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/lodash": "^4.14.106",
+        "@types/globby": "^6.1.0",
+        "@types/node": "^9.6.4"
+    }
 }

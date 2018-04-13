@@ -7,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ClassParser
 {
@@ -18,7 +19,7 @@ namespace ClassParser
             {
                 var filePath = args[0];
 
-                var code = new StreamReader(filePath).ReadToEnd();
+                var code = File.ReadAllText(filePath);
 
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
 
@@ -34,43 +35,42 @@ namespace ClassParser
 
                 var propertyList = new List<MemberDeclaration>();
 
-                foreach (var memberSyntax in classMembers)
+                var meaningfulMembers = classMembers
+                    .OfType<PropertyDeclarationSyntax>()
+                    .Where(member => !HasMemberJsonIgnoreAttribute(member))
+                    .ToList();
+
+                foreach (var propertySyntax in meaningfulMembers)
                 {
-                    if (memberSyntax is PropertyDeclarationSyntax)
+                    var member = new MemberDeclaration();
+                    member.Name = propertySyntax.Identifier.Text.ToCamelCase();
+
+                    if (propertySyntax.Type is GenericNameSyntax)
                     {
-                        PropertyDeclarationSyntax propertySyntax = memberSyntax as PropertyDeclarationSyntax;
-                        if (!HasMemberJsonIgnoreAttribute(propertySyntax))
-                        {
-                            var memeber = new MemberDeclaration();
-                            memeber.Name = propertySyntax.Identifier.Text.ToCamelCase();
-
-                            if (propertySyntax.Type is GenericNameSyntax)
-                            {
-                                memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
-                            }
-                            else if (propertySyntax.Type is NullableTypeSyntax)
-                            {
-                                memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
-                            }
-                            else
-                            {
-                                memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
-                            }
-
-                            propertyList.Add(memeber);
-                        }
+                        member.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
                     }
+                    else if (propertySyntax.Type is NullableTypeSyntax)
+                    {
+                        member.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
+                    }
+                    else
+                    {
+                        member.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
+                    }
+
+                    propertyList.Add(member);
                 }
                 //foreach (var memeber in propertyList)
                 //{
                 //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
                 //}
-                var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
-                Console.Write(JsonConvert.SerializeObject(modelDeclarration,
+                var modelDeclaration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
+                Console.Write(JsonConvert.SerializeObject(modelDeclaration,
                     new JsonSerializerSettings
                     {
                         DefaultValueHandling = DefaultValueHandling.Ignore,
-                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                        Formatting = Formatting.Indented
                     }));
             }
         }
@@ -127,20 +127,11 @@ namespace ClassParser
 
             if (propertyAttributes.Any())
             {
-                foreach (var attributesList in propertyAttributes)
-                {
-                    if (attributesList.Attributes.Any())
-                    {
-                        foreach (var attribute in attributesList.Attributes)
-                        {
-                            if (attribute.Name.ToString() == "JsonIgnore")
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
+                var attributes = propertyAttributes.SelectMany(x => x.Attributes);
+
+                return attributes.Any(a => a.Name.ToString() == "JsonIgnore");
             }
+
             return false;
         }
     }

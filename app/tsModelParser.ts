@@ -1,7 +1,6 @@
-import * as fs from 'async-file';
-import * as path from 'path';
 import ts from 'typescript';
 import { MemberDeclaration, ModelDeclaration, TypeDeclaration } from './types';
+import { openTypescriptFile, SyntaxKindToStringTypeMapping } from './tsHelpers';
 
 export async function parseTypescriptModel(path: string): Promise<ModelDeclaration> {
     const src = await openTypescriptFile(path);
@@ -49,13 +48,6 @@ export async function parseTypescriptModel(path: string): Promise<ModelDeclarati
     }
 }
 
-const typeMapping = new Map<ts.SyntaxKind, string>([
-    [ts.SyntaxKind.StringKeyword, 'string'],
-    [ts.SyntaxKind.NumberKeyword, 'number'],
-    [ts.SyntaxKind.BooleanKeyword, 'boolean'],
-    [ts.SyntaxKind.AnyKeyword, 'any'],
-]);
-
 function getMember(prop: ts.PropertyDeclaration | ts.PropertySignature): MemberDeclaration {
     let type: TypeDeclaration = {
         name: 'Unknown'
@@ -80,7 +72,7 @@ function getMember(prop: ts.PropertyDeclaration | ts.PropertySignature): MemberD
 }
 
 function getType(node: ts.TypeNode) {
-    const mapping = typeMapping.get(node.kind);
+    const mapping = SyntaxKindToStringTypeMapping.get(node.kind);
 
     if (mapping) {
         return mapping;
@@ -95,9 +87,4 @@ function getType(node: ts.TypeNode) {
         console.log('!!!!');
         debugger;
     }
-}
-
-async function openTypescriptFile(filePath: string) {
-    const sourceText = await fs.readTextFile(filePath, 'utf8');
-    return ts.createSourceFile(path.basename(filePath), sourceText, ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
 }

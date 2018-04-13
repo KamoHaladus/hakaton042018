@@ -26,3 +26,8 @@ export type Config = {
     dtoModel: string;
     tsModel: string;
 };
+export type UpdateModelCommand = {
+    modelName: string,
+    add: MemberDeclaration[],
+    remove: string[]
+}
