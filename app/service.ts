@@ -33,6 +33,17 @@ program
     });
 
 program
+    .command('sync')
+    .alias('s')
+    .description('sync file')
+    .action(() => {
+        inquire.prompt(questions).then((answers) => {
+            let cmd = new Commands();
+            Promise.all([cmd.sync(answers.filename)]);
+        });
+    });
+
+program
     .version('0.0.1')
     .description('Contact management system');
 

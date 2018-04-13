@@ -16,7 +16,8 @@ export type TypeDeclaration = {
 
 export type Content = {
     dotNetModelContent: ModelDeclaration,
-    dtoModelContent: ModelDeclaration
+    dtoModelContent: ModelDeclaration,
+    modelPaths: { dotNetModel: string, dtoModel: string }
 };
 
 export type Config = {

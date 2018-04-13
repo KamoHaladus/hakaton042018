@@ -1,14 +1,22 @@
-import { ModelDeclaration, Config, Content } from "./types";
+import { ModelDeclaration, Config, Content, UpdateModelCommand } from "./types";
 import columnify from 'columnify';
 import { exec } from 'child_process';
 import globby from 'globby';
 import { parseTypescriptModel } from "./tsModelParser";
 import _ from 'lodash';
+import { updateModel } from "./tsModelUpdater";
 const config = require('./config.json') as Config;
 
 export class Commands {
 
-	public sync = () => console.log('not implemented');
+	public sync = async (modelName: string) => {
+		let content: Content = await this.read(modelName);
+		let add = _.differenceWith(content.dotNetModelContent.members, content.dtoModelContent.members, (dotNet, dto) => dotNet.name.toLowerCase() == dto.name.toLowerCase());
+		let remove = _.differenceWith(content.dtoModelContent.members, content.dotNetModelContent.members, (dto, dotNet) => dto.name.toLowerCase() == dotNet.name.toLowerCase());
+		let cmd: UpdateModelCommand = { add: add, modelName: modelName, remove: remove.map(r => r.name) };
+		let result = await updateModel(content.modelPaths.dtoModel, cmd);
+		console.log(result);
+	}
 
 	public diff = async (modelName: string) => {
 		let content: Content = await this.read(modelName);
@@ -36,7 +44,8 @@ export class Commands {
 			]).then((result: [ModelDeclaration, ModelDeclaration]) => {
 				return {
 					dotNetModelContent: result[0],
-					dtoModelContent: result[1]
+					dtoModelContent: result[1],
+					modelPaths
 				};
 			});
 	}
