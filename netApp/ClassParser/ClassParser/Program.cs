@@ -18,7 +18,7 @@ namespace ClassParser
             {
                 var filePath = args[0];
 
-                var code = new StreamReader(filePath).ReadToEnd();
+                var code = File.ReadAllText(filePath);
 
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
 
@@ -46,18 +46,18 @@ namespace ClassParser
 
                             if (propertySyntax.Type is GenericNameSyntax)
                             {
-                                memeber.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
+                                member.Type = BuildPropertyTypeFromGenericNameSyntax(propertySyntax.Type as GenericNameSyntax);
                             }
                             else if (propertySyntax.Type is NullableTypeSyntax)
                             {
-                                memeber.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
+                                member.Type = BuildPropertyTypeFromNullableTypeSyntax(propertySyntax.Type as NullableTypeSyntax);
                             }
                             else
                             {
-                                memeber.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
+                                member.Type = BuildPropertyTypeFromStandardSyntax(propertySyntax.Type);
                             }
 
-                            propertyList.Add(memeber);
+                            propertyList.Add(member);
                         }
                     }
                 }
@@ -66,7 +66,7 @@ namespace ClassParser
                 //    Console.WriteLine($"{memeber.Name}, Type: {memeber?.Type?.Name}, {memeber?.Type?.IsArray}");
                 //}
                 var modelDeclarration = new ModelDeclaration(Path.GetFileNameWithoutExtension(filePath), propertyList);
-                Console.Write(JsonConvert.SerializeObject(modelDeclarration, 
+                Console.Write(JsonConvert.SerializeObject(modelDeclarration,
                     new JsonSerializerSettings {
                         DefaultValueHandling = DefaultValueHandling.Ignore,
                         ContractResolver = new CamelCasePropertyNamesContractResolver()
