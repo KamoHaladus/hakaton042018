@@ -4,11 +4,25 @@ import { exec } from 'child_process';
 import globby from 'globby';
 import { parseTypescriptModel } from "./tsModelParser";
 import _ from 'lodash';
+import * as fs from "fs";
+import * as path from "path";
 const config = require('./config.json') as Config;
 
 export class Commands {
 
 	public sync = () => console.log('not implemented');
+
+	public watch = () => {
+		fs.watch(path.join(config.root, config.dotNetModel), { recursive: true }, (event, filename) => {
+			if (!filename.endsWith("ViewModel.cs") || event != "change") {
+				return;
+			}
+
+			const modelName = path.basename(filename, '.cs');
+
+			this.diff(modelName);
+		});
+	}
 
 	public diff = async (modelName: string) => {
 		let content: Content = await this.read(modelName);

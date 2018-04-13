@@ -33,6 +33,15 @@ program
     });
 
 program
+    .command('watch')
+    .alias('w')
+    .description('watch file')
+    .action(() => {
+        let cmd = new Commands();
+        cmd.watch();
+    });
+
+program
     .version('0.0.1')
     .description('Contact management system');
 
