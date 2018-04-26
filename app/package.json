@@ -6,7 +6,8 @@
     "scripts": {
         "read": "node service.js r",
         "sync": "node service.js s",
-        "diff": "node service.js d"
+        "diff": "node service.js d",
+        "watch": "node service.js w"
     },
     "repository": {
         "type": "git",

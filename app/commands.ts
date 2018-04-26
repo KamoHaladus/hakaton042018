@@ -5,6 +5,8 @@ import globby from 'globby';
 import { parseTypescriptModel } from "./tsModelParser";
 import _ from 'lodash';
 import { updateModel } from "./tsModelUpdater";
+import * as fs from "fs";
+import * as path from "path";
 const config = require('./config.json') as Config;
 
 export class Commands {
@@ -16,6 +18,18 @@ export class Commands {
 		let cmd: UpdateModelCommand = { add: add, modelName: modelName, remove: remove.map(r => r.name) };
 		let result = await updateModel(content.modelPaths.dtoModel, cmd);
 		console.log(result);
+	}
+
+	public watch = () => {
+		fs.watch(path.join(config.root, config.dotNetModel), { recursive: true }, (event, filename) => {
+			if (!filename.endsWith("ViewModel.cs") || event != "change") {
+				return;
+			}
+
+			const modelName = path.basename(filename, '.cs');
+
+			this.diff(modelName);
+		});
 	}
 
 	public diff = async (modelName: string) => {
